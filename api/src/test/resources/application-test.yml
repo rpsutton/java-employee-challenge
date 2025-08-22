@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: employee-api-test
+
+server:
+  port: 0
+
+mock-api:
+  base-url: http://localhost:8112/api/v1/employee
+  connection-timeout: 1000
+  read-timeout: 2000
+  retry:
+    max-attempts: 3
+    initial-delay: 10
+    max-delay: 50
+    multiplier: 2.0
+
+logging:
+  level:
+    com.reliaquest.api: DEBUG

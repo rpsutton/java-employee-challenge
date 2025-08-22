@@ -208,5 +208,4 @@ class CreateEmployeeRequestValidationTest {
         Set<ConstraintViolation<CreateEmployeeRequest>> violations = validator.validate(request);
         assertThat(violations).hasSize(4);
     }
-
 }

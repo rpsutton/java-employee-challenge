@@ -27,12 +27,13 @@ public class WebClientConfig {
         HttpClient httpClient = HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, mockApiProperties.getConnectionTimeout())
                 .responseTimeout(Duration.ofMillis(mockApiProperties.getReadTimeout()))
-                .doOnConnected(conn ->
-                        conn.addHandlerLast(new ReadTimeoutHandler(mockApiProperties.getReadTimeout(), TimeUnit.MILLISECONDS))
-                                .addHandlerLast(new WriteTimeoutHandler(mockApiProperties.getReadTimeout(), TimeUnit.MILLISECONDS)));
+                .doOnConnected(conn -> conn.addHandlerLast(
+                                new ReadTimeoutHandler(mockApiProperties.getReadTimeout(), TimeUnit.MILLISECONDS))
+                        .addHandlerLast(
+                                new WriteTimeoutHandler(mockApiProperties.getReadTimeout(), TimeUnit.MILLISECONDS)));
 
         log.info("Configuring WebClient for Mock API with base URL: {}", mockApiProperties.getBaseUrl());
-        
+
         return webClientBuilder
                 .baseUrl(mockApiProperties.getBaseUrl())
                 .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)

@@ -1,7 +1,6 @@
 package com.reliaquest.api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -36,7 +35,7 @@ class EmployeeControllerTest {
 
     @MockBean
     private EmployeeService employeeService;
-    
+
     @MockBean
     private Validator validator;
 
@@ -84,14 +83,12 @@ class EmployeeControllerTest {
     void getAllEmployees_shouldReturn500OnError() throws Exception {
         when(employeeService.getAllEmployees()).thenReturn(Mono.error(new RuntimeException("Service error")));
 
-        mockMvc.perform(get("/api/v1/employee"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/v1/employee")).andExpect(status().isInternalServerError());
     }
 
     @Test
     void getEmployeesByNameSearch_shouldReturnFilteredEmployees() throws Exception {
-        when(employeeService.searchEmployeesByName("John"))
-                .thenReturn(Mono.just(Arrays.asList(testEmployee1)));
+        when(employeeService.searchEmployeesByName("John")).thenReturn(Mono.just(Arrays.asList(testEmployee1)));
 
         mockMvc.perform(get("/api/v1/employee/search/John"))
                 .andExpect(status().isOk())
@@ -115,8 +112,7 @@ class EmployeeControllerTest {
     void getEmployeeById_shouldReturn404WhenNotFound() throws Exception {
         when(employeeService.getEmployeeById("999")).thenReturn(Mono.empty());
 
-        mockMvc.perform(get("/api/v1/employee/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/employee/999")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -160,8 +156,7 @@ class EmployeeControllerTest {
                 .build();
 
         when(validator.validate(any(CreateEmployeeRequest.class))).thenReturn(new HashSet<>());
-        when(employeeService.createEmployee(any(CreateEmployeeRequest.class)))
-                .thenReturn(Mono.just(createdEmployee));
+        when(employeeService.createEmployee(any(CreateEmployeeRequest.class))).thenReturn(Mono.just(createdEmployee));
 
         mockMvc.perform(post("/api/v1/employee")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -221,16 +216,13 @@ class EmployeeControllerTest {
         when(employeeService.deleteEmployeeById("999"))
                 .thenReturn(Mono.error(new RuntimeException("Employee not found with id: 999")));
 
-        mockMvc.perform(delete("/api/v1/employee/999"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/v1/employee/999")).andExpect(status().isNotFound());
     }
 
     @Test
     void deleteEmployeeById_shouldReturn500OnOtherErrors() throws Exception {
-        when(employeeService.deleteEmployeeById("123"))
-                .thenReturn(Mono.error(new RuntimeException("Database error")));
+        when(employeeService.deleteEmployeeById("123")).thenReturn(Mono.error(new RuntimeException("Database error")));
 
-        mockMvc.perform(delete("/api/v1/employee/123"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(delete("/api/v1/employee/123")).andExpect(status().isInternalServerError());
     }
 }

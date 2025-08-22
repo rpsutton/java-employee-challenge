@@ -28,28 +28,32 @@ public class EmployeeService {
 
     private Retry getRetrySpec() {
         MockApiProperties.RetryConfig retryConfig = mockApiProperties.getRetry();
-        
+
         return Retry.backoff(retryConfig.getMaxAttempts(), Duration.ofMillis(retryConfig.getInitialDelay()))
                 .maxBackoff(Duration.ofMillis(retryConfig.getMaxDelay()))
                 .filter(throwable -> throwable instanceof WebClientResponseException.TooManyRequests)
-                .doBeforeRetry(retrySignal -> 
-                    log.warn("Rate limited, retry attempt {} of {}", 
-                            retrySignal.totalRetries() + 1, retryConfig.getMaxAttempts()))
-                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> 
-                    new RuntimeException("Service unavailable after " + retryConfig.getMaxAttempts() + " retry attempts", 
-                            retrySignal.failure()));
+                .doBeforeRetry(retrySignal -> log.warn(
+                        "Rate limited, retry attempt {} of {}",
+                        retrySignal.totalRetries() + 1,
+                        retryConfig.getMaxAttempts()))
+                .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> new RuntimeException(
+                        "Service unavailable after " + retryConfig.getMaxAttempts() + " retry attempts",
+                        retrySignal.failure()));
     }
 
     public Mono<List<Employee>> getAllEmployees() {
         log.info("Fetching all employees from mock API");
-        
-        return mockApiWebClient.get()
+
+        return mockApiWebClient
+                .get()
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<List<Employee>>>() {})
                 .retryWhen(getRetrySpec())
                 .map(response -> {
                     if (response != null && response.getData() != null) {
-                        log.info("Successfully fetched {} employees", response.getData().size());
+                        log.info(
+                                "Successfully fetched {} employees",
+                                response.getData().size());
                         return response.getData();
                     }
                     List<Employee> emptyList = List.of();
@@ -60,24 +64,24 @@ public class EmployeeService {
 
     public Mono<List<Employee>> searchEmployeesByName(String searchString) {
         log.info("Searching employees by name: {}", searchString);
-        
-        return getAllEmployees()
-                .map(employees -> {
-                    String lowerSearchString = searchString.toLowerCase();
-                    List<Employee> filtered = employees.stream()
-                            .filter(emp -> emp.getEmployeeName() != null && 
-                                    emp.getEmployeeName().toLowerCase().contains(lowerSearchString))
-                            .toList();
-                    
-                    log.info("Found {} employees matching search criteria", filtered.size());
-                    return filtered;
-                });
+
+        return getAllEmployees().map(employees -> {
+            String lowerSearchString = searchString.toLowerCase();
+            List<Employee> filtered = employees.stream()
+                    .filter(emp -> emp.getEmployeeName() != null
+                            && emp.getEmployeeName().toLowerCase().contains(lowerSearchString))
+                    .toList();
+
+            log.info("Found {} employees matching search criteria", filtered.size());
+            return filtered;
+        });
     }
 
     public Mono<Employee> getEmployeeById(String id) {
         log.info("Fetching employee by id: {}", id);
-        
-        return mockApiWebClient.get()
+
+        return mockApiWebClient
+                .get()
                 .uri("/{id}", id)
                 .retrieve()
                 .bodyToMono(new ParameterizedTypeReference<ApiResponse<Employee>>() {})
@@ -98,41 +102,40 @@ public class EmployeeService {
 
     public Mono<Integer> getHighestSalary() {
         log.info("Finding highest salary among all employees");
-        
-        return getAllEmployees()
-                .map(employees -> {
-                    Integer highestSalary = employees.stream()
-                            .map(Employee::getEmployeeSalary)
-                            .filter(salary -> salary != null)
-                            .max(Integer::compareTo)
-                            .orElse(0);
-                    
-                    log.info("Highest salary found: {}", highestSalary);
-                    return highestSalary;
-                });
+
+        return getAllEmployees().map(employees -> {
+            Integer highestSalary = employees.stream()
+                    .map(Employee::getEmployeeSalary)
+                    .filter(salary -> salary != null)
+                    .max(Integer::compareTo)
+                    .orElse(0);
+
+            log.info("Highest salary found: {}", highestSalary);
+            return highestSalary;
+        });
     }
 
     public Mono<List<String>> getTop10HighestEarningEmployeeNames() {
         log.info("Finding top 10 highest earning employees");
-        
-        return getAllEmployees()
-                .map(employees -> {
-                    List<String> topEarners = employees.stream()
-                            .filter(emp -> emp.getEmployeeSalary() != null)
-                            .sorted(Comparator.comparing(Employee::getEmployeeSalary).reversed())
-                            .limit(10)
-                            .map(Employee::getEmployeeName)
-                            .toList();
-                    
-                    log.info("Found {} top earners", topEarners.size());
-                    return topEarners;
-                });
+
+        return getAllEmployees().map(employees -> {
+            List<String> topEarners = employees.stream()
+                    .filter(emp -> emp.getEmployeeSalary() != null)
+                    .sorted(Comparator.comparing(Employee::getEmployeeSalary).reversed())
+                    .limit(10)
+                    .map(Employee::getEmployeeName)
+                    .toList();
+
+            log.info("Found {} top earners", topEarners.size());
+            return topEarners;
+        });
     }
 
     public Mono<Employee> createEmployee(CreateEmployeeRequest request) {
         log.info("Creating new employee: {}", request.getName());
-        
-        return mockApiWebClient.post()
+
+        return mockApiWebClient
+                .post()
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(request)
                 .retrieve()
@@ -140,7 +143,9 @@ public class EmployeeService {
                 .retryWhen(getRetrySpec())
                 .map(response -> {
                     if (response != null && response.getData() != null) {
-                        log.info("Successfully created employee with id: {}", response.getData().getId());
+                        log.info(
+                                "Successfully created employee with id: {}",
+                                response.getData().getId());
                         return response.getData();
                     }
                     return null;
@@ -150,18 +155,19 @@ public class EmployeeService {
 
     public Mono<String> deleteEmployeeById(String id) {
         log.info("Attempting to delete employee by id: {}", id);
-        
+
         // First, fetch the employee to get their name (since mock API deletes by name, not id)
         return getEmployeeById(id)
                 .switchIfEmpty(Mono.error(new RuntimeException("Employee not found with id: " + id)))
                 .flatMap(employee -> {
                     String employeeName = employee.getEmployeeName();
                     log.info("Found employee '{}' with id '{}', proceeding with deletion", employeeName, id);
-                    
+
                     // Note: The mock API expects name in the body but also in the URL path
                     Map<String, String> requestBody = Map.of("name", employeeName);
-                    
-                    return mockApiWebClient.method(org.springframework.http.HttpMethod.DELETE)
+
+                    return mockApiWebClient
+                            .method(org.springframework.http.HttpMethod.DELETE)
                             .uri("/{name}", employeeName)
                             .bodyValue(requestBody)
                             .retrieve()

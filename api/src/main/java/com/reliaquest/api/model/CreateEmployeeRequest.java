@@ -18,12 +18,9 @@ public class CreateEmployeeRequest {
     @NotBlank(message = "Name cannot be blank")
     private String name;
 
-    @NotNull(message = "Salary is required")
-    @Positive(message = "Salary must be greater than zero")
-    private Integer salary;
+    @NotNull(message = "Salary is required") @Positive(message = "Salary must be greater than zero") private Integer salary;
 
-    @NotNull(message = "Age is required")
-    @Min(value = 16, message = "Age must be at least 16")
+    @NotNull(message = "Age is required") @Min(value = 16, message = "Age must be at least 16")
     @Max(value = 75, message = "Age cannot exceed 75")
     private Integer age;
 

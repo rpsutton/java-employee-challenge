@@ -93,8 +93,7 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getAllEmployees())
                 .assertNext(employees -> {
@@ -110,9 +109,8 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getAllEmployees())
                 .assertNext(employees -> {
@@ -121,23 +119,22 @@ class EmployeeServiceTest {
                 })
                 .verifyComplete();
     }
-    
+
     @Test
     void getAllEmployees_shouldThrowAfterMaxRetries() {
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        
-        WebClientResponseException rateLimitError = WebClientResponseException.create(
-                429, "Too Many Requests", null, null, null);
-        
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.error(rateLimitError));
+
+        WebClientResponseException rateLimitError =
+                WebClientResponseException.create(429, "Too Many Requests", null, null, null);
+
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.error(rateLimitError));
 
         StepVerifier.create(employeeService.getAllEmployees())
                 .expectErrorMatches(throwable -> {
-                    return throwable instanceof RuntimeException &&
-                           throwable.getMessage() != null &&
-                           throwable.getMessage().contains("Service unavailable after 3 retry attempts");
+                    return throwable instanceof RuntimeException
+                            && throwable.getMessage() != null
+                            && throwable.getMessage().contains("Service unavailable after 3 retry attempts");
                 })
                 .verify();
     }
@@ -148,8 +145,7 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.searchEmployeesByName("John"))
                 .assertNext(employees -> {
@@ -165,8 +161,7 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.searchEmployeesByName("SMITH"))
                 .assertNext(employees -> {
@@ -183,8 +178,7 @@ class EmployeeServiceTest {
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri("/{id}", "123")).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getEmployeeById("123"))
                 .assertNext(employee -> {
@@ -203,8 +197,7 @@ class EmployeeServiceTest {
         when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
                 .thenReturn(Mono.error(WebClientResponseException.create(404, "Not Found", null, null, null)));
 
-        StepVerifier.create(employeeService.getEmployeeById("999"))
-                .verifyComplete();
+        StepVerifier.create(employeeService.getEmployeeById("999")).verifyComplete();
     }
 
     @Test
@@ -213,8 +206,7 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getHighestSalary())
                 .assertNext(salary -> {
@@ -229,8 +221,7 @@ class EmployeeServiceTest {
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getHighestSalary())
                 .assertNext(salary -> {
@@ -242,16 +233,23 @@ class EmployeeServiceTest {
     @Test
     void getTop10HighestEarningEmployeeNames_shouldReturnSortedNames() {
         List<Employee> manyEmployees = Arrays.asList(
-                Employee.builder().employeeName("Low Earner").employeeSalary(50000).build(),
-                Employee.builder().employeeName("High Earner").employeeSalary(200000).build(),
-                Employee.builder().employeeName("Mid Earner").employeeSalary(100000).build()
-        );
+                Employee.builder()
+                        .employeeName("Low Earner")
+                        .employeeSalary(50000)
+                        .build(),
+                Employee.builder()
+                        .employeeName("High Earner")
+                        .employeeSalary(200000)
+                        .build(),
+                Employee.builder()
+                        .employeeName("Mid Earner")
+                        .employeeSalary(100000)
+                        .build());
         ApiResponse<List<Employee>> apiResponse = new ApiResponse<>(manyEmployees, "Success");
 
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.getTop10HighestEarningEmployeeNames())
                 .assertNext(names -> {
@@ -287,8 +285,7 @@ class EmployeeServiceTest {
         when(requestBodyUriSpec.contentType(MediaType.APPLICATION_JSON)).thenReturn(requestBodySpec);
         when(requestBodySpec.bodyValue(request)).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(responseSpec);
-        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(apiResponse));
+        when(responseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(apiResponse));
 
         StepVerifier.create(employeeService.createEmployee(request))
                 .assertNext(employee -> {
@@ -306,17 +303,18 @@ class EmployeeServiceTest {
 
         WebClient.ResponseSpec getResponseSpec = org.mockito.Mockito.mock(WebClient.ResponseSpec.class);
         WebClient.ResponseSpec deleteResponseSpec = org.mockito.Mockito.mock(WebClient.ResponseSpec.class);
-        
+
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri("/{id}", "123")).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(getResponseSpec);
-        when(getResponseSpec.bodyToMono(any(ParameterizedTypeReference.class)))
-                .thenReturn(Mono.just(getResponse));
+        when(getResponseSpec.bodyToMono(any(ParameterizedTypeReference.class))).thenReturn(Mono.just(getResponse));
 
-        WebClient.RequestBodyUriSpec deleteRequestBodyUriSpec = org.mockito.Mockito.mock(WebClient.RequestBodyUriSpec.class);
+        WebClient.RequestBodyUriSpec deleteRequestBodyUriSpec =
+                org.mockito.Mockito.mock(WebClient.RequestBodyUriSpec.class);
         WebClient.RequestBodySpec deleteRequestBodySpec = org.mockito.Mockito.mock(WebClient.RequestBodySpec.class);
-        WebClient.RequestHeadersSpec deleteRequestHeadersSpec = org.mockito.Mockito.mock(WebClient.RequestHeadersSpec.class);
-        
+        WebClient.RequestHeadersSpec deleteRequestHeadersSpec =
+                org.mockito.Mockito.mock(WebClient.RequestHeadersSpec.class);
+
         when(mockWebClient.method(HttpMethod.DELETE)).thenReturn(deleteRequestBodyUriSpec);
         when(deleteRequestBodyUriSpec.uri("/{name}", "John Doe")).thenReturn(deleteRequestBodySpec);
         when(deleteRequestBodySpec.bodyValue(any(Map.class))).thenReturn(deleteRequestHeadersSpec);
@@ -334,7 +332,7 @@ class EmployeeServiceTest {
     @Test
     void deleteEmployeeById_shouldThrowWhenEmployeeNotFound() {
         WebClient.ResponseSpec notFoundResponseSpec = org.mockito.Mockito.mock(WebClient.ResponseSpec.class);
-        
+
         when(mockWebClient.get()).thenReturn(requestHeadersUriSpec);
         when(requestHeadersUriSpec.uri("/{id}", "999")).thenReturn(requestHeadersSpec);
         when(requestHeadersSpec.retrieve()).thenReturn(notFoundResponseSpec);

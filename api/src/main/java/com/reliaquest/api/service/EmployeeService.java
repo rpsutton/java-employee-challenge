@@ -52,7 +52,8 @@ public class EmployeeService {
                         log.info("Successfully fetched {} employees", response.getData().size());
                         return response.getData();
                     }
-                    return List.of();
+                    List<Employee> emptyList = List.of();
+                    return emptyList;
                 })
                 .doOnError(error -> log.error("Error fetching all employees", error));
     }

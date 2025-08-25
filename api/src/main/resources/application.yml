@@ -3,7 +3,7 @@ spring:
     name: employee-api
 
 server:
-  port: 8111
+  port: 8080
 
 mock-api:
   base-url: http://localhost:8112/api/v1/employee

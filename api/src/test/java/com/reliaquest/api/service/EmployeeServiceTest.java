@@ -316,7 +316,7 @@ class EmployeeServiceTest {
                 org.mockito.Mockito.mock(WebClient.RequestHeadersSpec.class);
 
         when(mockWebClient.method(HttpMethod.DELETE)).thenReturn(deleteRequestBodyUriSpec);
-        when(deleteRequestBodyUriSpec.uri("/{name}", "John Doe")).thenReturn(deleteRequestBodySpec);
+        when(deleteRequestBodyUriSpec.uri("")).thenReturn(deleteRequestBodySpec);
         when(deleteRequestBodySpec.bodyValue(any(Map.class))).thenReturn(deleteRequestHeadersSpec);
         when(deleteRequestHeadersSpec.retrieve()).thenReturn(deleteResponseSpec);
         when(deleteResponseSpec.bodyToMono(any(ParameterizedTypeReference.class)))

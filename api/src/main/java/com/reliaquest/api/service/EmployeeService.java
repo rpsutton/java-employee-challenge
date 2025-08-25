@@ -156,19 +156,17 @@ public class EmployeeService {
     public Mono<String> deleteEmployeeById(String id) {
         log.info("Attempting to delete employee by id: {}", id);
 
-        // First, fetch the employee to get their name (since mock API deletes by name, not id)
         return getEmployeeById(id)
                 .switchIfEmpty(Mono.error(new RuntimeException("Employee not found with id: " + id)))
                 .flatMap(employee -> {
                     String employeeName = employee.getEmployeeName();
                     log.info("Found employee '{}' with id '{}', proceeding with deletion", employeeName, id);
 
-                    // Note: The mock API expects name in the body but also in the URL path
                     Map<String, String> requestBody = Map.of("name", employeeName);
 
                     return mockApiWebClient
                             .method(org.springframework.http.HttpMethod.DELETE)
-                            .uri("/{name}", employeeName)
+                            .uri("")
                             .bodyValue(requestBody)
                             .retrieve()
                             .bodyToMono(new ParameterizedTypeReference<ApiResponse<Boolean>>() {})

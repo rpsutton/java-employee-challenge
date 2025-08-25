@@ -41,14 +41,14 @@ class ApiApplicationTest {
     static void properties(DynamicPropertyRegistry registry) throws IOException {
         mockWebServer = new MockWebServer();
         mockWebServer.start();
-        
-        registry.add("mock-api.base-url",
-            () -> String.format("http://localhost:%s/api/v1/employee", mockWebServer.getPort()));
+
+        registry.add(
+                "mock-api.base-url",
+                () -> String.format("http://localhost:%s/api/v1/employee", mockWebServer.getPort()));
     }
 
     @BeforeEach
-    void setUp() {
-    }
+    void setUp() {}
 
     @AfterEach
     void tearDown() throws InterruptedException {
@@ -104,8 +104,7 @@ class ApiApplicationTest {
     void testGetEmployeeById_NotFound() throws Exception {
         mockWebServer.enqueue(notFound());
 
-        mockMvc.perform(get("/api/v1/employee/non-existent-id"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(get("/api/v1/employee/non-existent-id")).andExpect(status().isNotFound());
     }
 
     @Test
@@ -226,7 +225,7 @@ class ApiApplicationTest {
     @Test
     void testDeleteEmployeeById() throws Exception {
         Employee employee = rosarioGoldner();
-        
+
         mockWebServer.enqueue(success(employee));
         mockWebServer.enqueue(success(true));
 
@@ -247,24 +246,22 @@ class ApiApplicationTest {
     void testDeleteEmployeeById_NotFound() throws Exception {
         mockWebServer.enqueue(notFound());
 
-        mockMvc.perform(delete("/api/v1/employee/non-existent-id"))
-                .andExpect(status().isNotFound());
+        mockMvc.perform(delete("/api/v1/employee/non-existent-id")).andExpect(status().isNotFound());
     }
 
     @Test
     void testServerError_ReturnsInternalServerError() throws Exception {
         mockWebServer.enqueue(serverError());
 
-        mockMvc.perform(get("/api/v1/employee"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/v1/employee")).andExpect(status().isInternalServerError());
     }
 
     @Test
     void testRateLimiting_WithRetry() throws Exception {
         Employee employee = ngocHand();
-        
+
         int initialRequestCount = mockWebServer.getRequestCount();
-        
+
         mockWebServer.enqueue(rateLimited());
         mockWebServer.enqueue(rateLimited());
         mockWebServer.enqueue(success(List.of(employee)));
@@ -292,7 +289,6 @@ class ApiApplicationTest {
     void testMalformedResponse() throws Exception {
         mockWebServer.enqueue(malformed());
 
-        mockMvc.perform(get("/api/v1/employee"))
-                .andExpect(status().isInternalServerError());
+        mockMvc.perform(get("/api/v1/employee")).andExpect(status().isInternalServerError());
     }
 }

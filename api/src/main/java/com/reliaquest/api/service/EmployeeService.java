@@ -59,7 +59,13 @@ public class EmployeeService {
                     List<Employee> emptyList = List.of();
                     return emptyList;
                 })
-                .doOnError(error -> log.error("Error fetching all employees", error));
+                .onErrorResume(error -> {
+                    log.error("Error fetching all employees from external API", error);
+                    if (error.getMessage() != null && error.getMessage().contains("Service unavailable after")) {
+                        return Mono.error(error);
+                    }
+                    return Mono.error(new RuntimeException("Failed to fetch employees from external API", error));
+                });
     }
 
     public Mono<List<Employee>> searchEmployeesByName(String searchString) {
@@ -97,7 +103,14 @@ public class EmployeeService {
                     log.warn("Employee not found with id: {}", id);
                     return Mono.empty();
                 })
-                .doOnError(error -> log.error("Error fetching employee by id: {}", id, error));
+                .onErrorResume(error -> {
+                    if (error instanceof WebClientResponseException.NotFound) {
+                        log.warn("Employee not found with id: {}", id);
+                        return Mono.empty();
+                    }
+                    log.error("Error fetching employee by id: {}", id, error);
+                    return Mono.error(new RuntimeException("Failed to fetch employee from external API", error));
+                });
     }
 
     public Mono<Integer> getHighestSalary() {
@@ -150,7 +163,10 @@ public class EmployeeService {
                     }
                     return null;
                 })
-                .doOnError(error -> log.error("Error creating employee: {}", request.getName(), error));
+                .onErrorResume(error -> {
+                    log.error("Error creating employee: {}", request.getName(), error);
+                    return Mono.error(new RuntimeException("Failed to create employee in external API", error));
+                });
     }
 
     public Mono<String> deleteEmployeeById(String id) {
@@ -180,6 +196,10 @@ public class EmployeeService {
                                 }
                             });
                 })
-                .doOnError(error -> log.error("Error deleting employee with id: {}", id, error));
+                .doOnError(error -> log.error("Error deleting employee with id: {}", id, error))
+                .onErrorResume(error -> {
+                    log.error("Failed to delete employee due to error", error);
+                    return Mono.error(error);
+                });
     }
 }

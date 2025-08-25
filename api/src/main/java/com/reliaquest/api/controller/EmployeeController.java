@@ -90,7 +90,6 @@ public class EmployeeController implements IEmployeeController<Employee, CreateE
     public ResponseEntity<Employee> createEmployee(@RequestBody CreateEmployeeRequest employeeInput) {
         log.debug("POST request to create employee: {}", employeeInput.getName());
 
-        // Programmatically validate since we can't use @Valid on overridden methods
         Set<ConstraintViolation<CreateEmployeeRequest>> violations = validator.validate(employeeInput);
         if (!violations.isEmpty()) {
             log.warn("Validation failed for create employee request: {}", violations);

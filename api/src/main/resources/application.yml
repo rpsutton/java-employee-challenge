@@ -10,7 +10,7 @@ mock-api:
   connection-timeout: 5000
   read-timeout: 10000
   retry:
-    max-attempts: 3
+    max-attempts: 25
     initial-delay: 1000
     max-delay: 5000
     multiplier: 2.0
